@@ -1,0 +1,4 @@
+{
+  "cmake.sourceDirectory": "D:/Useful services/Image-Processor/backend",
+  "cmake.buildDirectory": "${workspaceFolder}/backend/build"
+}

@@ -114,7 +114,19 @@ if(CROW_USE_BOOST)
 		)
 	endif()
 else()
-  find_package(asio REQUIRED)
+  # Проверяем, есть ли asio от CPM
+  if(DEFINED asio_SOURCE_DIR)
+    message(STATUS "Using asio from CPM: ${asio_SOURCE_DIR}")
+    # Создаем интерфейсную библиотеку для asio
+    add_library(asio_interface INTERFACE)
+    target_include_directories(asio_interface INTERFACE ${asio_SOURCE_DIR}/asio/include)
+    target_compile_definitions(asio_interface INTERFACE ASIO_NO_DEPRECATED)
+    add_library(asio::asio ALIAS asio_interface)
+  else()
+    # Пытаемся найти asio в системе
+    find_package(asio REQUIRED)
+  endif()
+  
 	target_link_libraries(Crow
 		INTERFACE
 			asio::asio
@@ -281,7 +293,7 @@ endif()
 #####################################
 # Install Files
 #####################################
-if(CROW_INSTALL)
+if(CROW_INSTALL AND CROW_IS_MAIN_PROJECT)
 	include(GNUInstallDirs)
 	install(TARGETS Crow EXPORT CrowTargets)
 	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/

@@ -3,7 +3,7 @@
 
 int main() {
 
-  Image img("ngga.jpg");
+  Image img("input.jpg");
 
   if (img.getChannels() < 3) {
     std::cerr << "Required image with at least 3 channels" << std::endl;
@@ -12,7 +12,7 @@ int main() {
 
   img.grayScale();
   
-  if (!img.save("nigger.jpg")) {
+  if (!img.save("output.jpg")) {
     std::cerr << "Failed to save image!" << std::endl;
     return 1;
   }

@@ -1,4 +1,9 @@
 {
   "cmake.sourceDirectory": "D:/Useful services/Image-Processor/backend",
-  "cmake.buildDirectory": "${workspaceFolder}/backend/build"
+  "cmake.buildDirectory": "${workspaceFolder}/backend/build",
+  "files.associations": {
+    "*.h": "cpp",
+    "*.cc": "cpp",
+    "memory": "cpp"
+  }
 }

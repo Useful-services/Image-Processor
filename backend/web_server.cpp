@@ -1,71 +1,94 @@
 #include <crow.h>
+#include <crow/middlewares/cors.h>
 #include <Image.hpp>
 #include <iostream>
 #include <string>
+#include <algorithm>
 
 int main() {
-    crow::SimpleApp app;
+  crow::App<crow::CORSHandler> app;
 
-    // Маршрут для главной страницы
-    CROW_ROUTE(app, "/")([]() {
-        return crow::response(R"(
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Image Processor API</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        .endpoint { background: #f5f5f5; padding: 15px; margin: 10px 0; border-radius: 5px; }
-        .method { color: #007acc; font-weight: bold; }
-        .url { color: #28a745; font-family: monospace; }
-    </style>
-</head>
-<body>
-    <h1>Image Processor API</h1>
-    <p>Available endpoints:</p>
-    
-    <div class="endpoint">
-        <span class="method">GET</span> <span class="url">/</span> - Main page
-    </div>
-    
-    <div class="endpoint">
-        <span class="method">GET</span> <span class="url">/status</span> - Server status
-    </div>
-    
-    <div class="endpoint">
-        <span class="method">POST</span> <span class="url">/process</span> - Image processing
-    </div>
-    
-    <h2>Usage example:</h2>
-    <p>Send POST request on /process with image to grayscale.</p>
-</body>
-</html>
-        )");
+  auto& cors = app.get_middleware<crow::CORSHandler>();
+
+  cors
+    .global()
+      .headers("X-Custom-Header", "Upgrade-Insecure-Requests")
+      .methods("POST"_method, "GET"_method)
+    .prefix("/process-text")
+      .origin("http://127.0.0.1:5500")
+    .prefix("/process-image")
+      .origin("http://127.0.0.1:5500")
+    .prefix("/nocors")
+      .ignore();
+
+  CROW_ROUTE(app, "/")
+    ([]() {
+      return "Hello world!";
     });
 
-    // Маршрут для проверки статуса
-    CROW_ROUTE(app, "/status")([]() {
-        crow::json::wvalue response;
-        response["status"] = "running";
-        response["timestamp"] = std::time(nullptr);
-        response["version"] = "1.0.0";
-        return crow::response(response);
+  CROW_ROUTE(app, "/process-text")
+    .methods("POST"_method)([](const crow::request& req) {
+      CROW_LOG_INFO << "Processing POST request with body " + req.body;
+      try {
+        auto body = crow::json::load(req.body);
+        if (!body || !body.has("text")) {
+          crow::response res(400);
+          res.body = "{\"error\":\"Invalid JSON: expected {\\\"text\\\": \\\"...\\\"}\"}";
+          return res;
+        }
+        std::string input = body["text"].s();
+        std::string reversed_input = input;
+        std::reverse(reversed_input.begin(), reversed_input.end());
+
+        crow::json::wvalue json;
+        json["original"] = input;
+        json["reversed"] = reversed_input;
+        json["length"]   = static_cast<int>(input.size());
+
+        crow::response res(json);
+        res.set_header("Content-Type", "application/json");
+
+        return res;
+      } catch (const std::exception& e) {
+        CROW_LOG_ERROR << "Text processing error: " << e.what();
+        crow::response res(500);
+        res.set_header("Content-Type", "application/json");
+        res.body = "{\"error\":\"Internal server error\"}";
+        return res;
+      }
+        
     });
 
-    // Маршрут для обработки изображения (заглушка)
-    CROW_ROUTE(app, "/process")
-        .methods("POST"_method)
-        ([](const crow::request& req) {
-            crow::json::wvalue response;
-            response["message"] = "Image processing endpoint ready";
-            response["note"] = "This is a placeholder. Implement actual image processing here.";
-            return crow::response(response);    
-        });
 
-    std::cout << "Starting web server on http://localhost:8080" << std::endl;
-    std::cout << "Press Ctrl+C to stop" << std::endl;
+  CROW_ROUTE(app, "/process-image")
+    .methods("POST"_method)([](const crow::request& req){
+      CROW_LOG_INFO << "Processing image POST request";
+
+      try {
+
+        auto body = crow::json::load(req.body);
+        if (!body || !body.has("image")) {
+          CROW_LOG_ERROR << "Image processing started without image";
+          crow::response res(400);
+          res.set_header("Content-Type", "application/json");
+          res.body = "{\"error\":\"Invalid JSON: expected {\\\"image\\\": \\\"base64_data...\\\"}\"}";
+          return res;
+        }
+
+        Image img;
+        img.from_base64(body["image"].s());
+        img.gray_scale();
+
+      } catch(const std::exception& e) {
+        CROW_LOG_ERROR << "Image processing error: " << e.what();
+        crow::response res(500);
+        res.set_header("Content-Type", "application/json");
+        res.body = "{\"error\":\"Internal server error during image processing.\"}";
+        return res;
+      }
+    });
+
+  app.port(8080).run();
     
-    app.port(8080).run();
-    
-    return 0;
+  return 0;
 } 

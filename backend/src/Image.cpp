@@ -12,7 +12,7 @@ Image::Image(const std::string& path) {
     height = 0;
     channels = 0;
   }
-  if (!isLoaded()) {
+  if (!is_loaded()) {
     throw std::runtime_error("Failed to load image " + path);
   }
 }
@@ -32,7 +32,7 @@ bool Image::save(const std::string& filename) {
   return stbi_write_jpg(filename.c_str(), width, height, channels, data.get(), 90);
 }
 
-void Image::grayScale() {
+void Image::gray_scale() {
   for (int x = 0; x < width; x++) {
     for (int y = 0; y < height; y++) {
       uint8_t* pxl = pixel(x, y);
@@ -40,4 +40,20 @@ void Image::grayScale() {
       pxl[0] = pxl[1] = pxl[2] = gray;
     }
   }
+}
+
+void Image::from_base64(const std::string& data_base64) {
+  std::string image_data = base64_decode(data_base64);
+  uint8_t* raw = stbi_load_from_memory(
+    reinterpret_cast<const uint8_t*>(image_data.data()),
+    image_data.size(),
+    &width, &height, &channels, 0
+  );
+  data = std::make_unique<uint8_t[]>(width * height * channels);
+  std::copy(raw, raw + width * height * channels, data.get());
+  stbi_image_free(raw);
+}
+
+std::string Image::to_base64() {
+  int new_size;
 }

@@ -7,6 +7,7 @@
 #include <stb_image_write.h>
 #include <vector>
 #include <stdexcept>
+#include <base64.h>
 
 class Image {
 public:
@@ -21,14 +22,16 @@ public:
 
   bool save(const std::string& filename);
   
-  bool isLoaded() const { return data != nullptr && width > 0 && height > 0 && channels > 0; }
+  bool is_loaded() const { return data != nullptr && width > 0 && height > 0 && channels > 0; }
   
   // Getters for image dimensions
-  int32_t getWidth() const { return width; }
-  int32_t getHeight() const { return height; }
-  int32_t getChannels() const { return channels; }
+  int32_t get_width() const { return width; }
+  int32_t get_height() const { return height; }
+  int32_t get_channels() const { return channels; }
 
-  void grayScale();
+  void gray_scale();
+  void from_base64(const std::string& data_base64);
+  std::string to_base64();
 
 private:
   int32_t width, height, channels;

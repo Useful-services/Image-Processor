@@ -32,7 +32,7 @@ add_subdirectory(Crow/)
 add_library(stb_image INTERFACE)
 target_include_directories(stb_image INTERFACE stb_image/)
 
-add_library(ImageHandler STATIC src/Image.cpp src/stb_image_impl.cpp)
+add_library(ImageHandler STATIC src/Image.cpp src/stb_image_impl.cpp src/ImageEncoder.cpp)
 
 target_include_directories(ImageHandler PUBLIC include/ stb_image/)
 

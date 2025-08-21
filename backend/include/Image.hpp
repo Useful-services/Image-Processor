@@ -7,7 +7,7 @@
 #include <stb_image_write.h>
 #include <vector>
 #include <stdexcept>
-#include <base64.h>
+#include <ImageEncoder.hpp>
 
 class Image {
 public:

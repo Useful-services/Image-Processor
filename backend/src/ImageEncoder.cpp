@@ -1,4 +1,10 @@
-#include <base64.h>
+#include <ImageEncoder.hpp>
+
+void memory_write_func(void* context, void* data, int size) {
+  MemoryWriteContext* ctx = static_cast<MemoryWriteContext*>(context);
+  unsigned char* bytes = static_cast<unsigned char*>(data);
+  ctx->data.insert(ctx->data.end(), bytes, bytes + size);
+}
 
 static const std::string base64_chars = 
              "ABCDEFGHIJKLMNOPQRSTUVWXYZ"

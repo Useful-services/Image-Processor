@@ -55,5 +55,20 @@ void Image::from_base64(const std::string& data_base64) {
 }
 
 std::string Image::to_base64() {
-  int new_size;
+  MemoryWriteContext context;
+  int success = stbi_write_png_to_func(
+    memory_write_func,
+    &context,
+    width,
+    height,
+    channels,
+    data.get(),
+    width * channels
+  );
+
+  if (!success) {
+    throw std::runtime_error("Unable to transform image to base64");
+  }
+
+  return base64_encode(context.data.data(), context.data.size());
 }

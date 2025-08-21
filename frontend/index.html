@@ -14,7 +14,7 @@
   </style>
 </head>
 <body>
-  <h1>Магический разворот строки</h1>
+  <h1>Разворот строки</h1>
   <div class="row">
     <label for="inputText">Текст для обработки</label>
     <textarea id="inputText" placeholder="Введите текст"></textarea>
@@ -25,7 +25,29 @@
   </div>
   <div class="row">
     <h3>Ответ</h3>
-    <pre id="output">—</pre>
+    <pre id="text-output">—</pre>
+  </div>
+
+  <div class="row">
+    <h2>Изображение</h2>
+    <input type="file" id="imageInput" accept="image/png, image/jpg" />
+    <button id="sendImageBtn">Обработать изображение</button>
+    <span class="muted" id="status"></span>
+  </div>
+
+  <div class="row">
+    <h3>Оригинальное изображение</h3>
+    <img id="originalImage" src="" style="display: none;" />
+  </div>
+
+  <div class="row">
+    <h3>Обработанное изображение</h3>
+    <img id="processedImage" src="" style="display: none;" />
+  </div>
+
+  <div class="row">
+    <h3>Ответ сервера</h3>
+    <pre id="image-output">—</pre>
   </div>
 
   <script src="main.js"></script>

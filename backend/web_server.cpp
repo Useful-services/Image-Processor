@@ -78,6 +78,18 @@ int main() {
         Image img;
         img.from_base64(body["image"].s());
         img.gray_scale();
+        
+        auto processedBase64 = img.to_base64();
+
+        crow::json::wvalue json;
+        json["width"] = img.get_width();
+        json["height"] = img.get_height();
+        json["channels"] = img.get_channels();
+        json["processed_image"] = processedBase64;
+
+        crow::response res(json);
+        res.set_header("Content-Type", "application/json");
+        return res;
 
       } catch(const std::exception& e) {
         CROW_LOG_ERROR << "Image processing error: " << e.what();

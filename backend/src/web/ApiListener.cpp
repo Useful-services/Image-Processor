@@ -1,6 +1,6 @@
 #include <ApiListener.hpp>
 
-ApiListener::ApiListener() {
+ApiListener::ApiListener(): client(ZMQClient("tcp://localhost:" + std::to_string(MQ_PORT))) {
   auto& cors = app.get_middleware<crow::CORSHandler>();
 
   cors
@@ -15,13 +15,38 @@ ApiListener::ApiListener() {
       .ignore();
 
   CROW_ROUTE(app, "/")
-    ([]() {
+    ([&]() {
+      MQData data{
+        {
+          MQData::MessageInfo::msg_type::INFO,
+          MQData::MessageInfo::action_type::NONE,
+          0
+        },
+        "Main page accessed."
+      };
+      char buf[MY_BUFFER_SIZE];
+      data.to_buffer(buf);
+      client.send(buf);
+      client.receive(buf, MY_BUFFER_SIZE);
       return "Hello world!";
     });
 
   CROW_ROUTE(app, "/process-text")
-    .methods("POST"_method)([](const crow::request& req) {
+    .methods("POST"_method)([&](const crow::request& req) {
       CROW_LOG_INFO << "Processing POST request with body " + req.body;
+      MQData data{
+        {
+          MQData::MessageInfo::msg_type::INFO,
+          MQData::MessageInfo::action_type::NONE,
+          0
+        },
+        "Started processing text."
+      };
+      char buf[MY_BUFFER_SIZE];
+      data.to_buffer(buf);
+      MQData other_data = MQData::from_buffer(buf);
+      client.send(buf);
+      client.receive(buf, MY_BUFFER_SIZE);
       try {
         auto body = crow::json::load(req.body);
         if (!body || !body.has("text")) {
@@ -41,6 +66,19 @@ ApiListener::ApiListener() {
         crow::response res(json);
         res.set_header("Content-Type", "application/json");
 
+        MQData data{
+          {
+            MQData::MessageInfo::msg_type::INFO,
+            MQData::MessageInfo::action_type::NONE,
+            0
+          },
+          "Finished processing text."
+        };
+        char buf[MY_BUFFER_SIZE];
+        data.to_buffer(buf);
+        client.send(buf);
+        client.receive(buf, MY_BUFFER_SIZE);
+
         return res;
       } catch (const std::exception& e) {
         CROW_LOG_ERROR << "Text processing error: " << e.what();
@@ -54,8 +92,20 @@ ApiListener::ApiListener() {
 
 
   CROW_ROUTE(app, "/process-image")
-    .methods("POST"_method)([](const crow::request& req){
+    .methods("POST"_method)([&](const crow::request& req){
       CROW_LOG_INFO << "Processing image POST request";
+      MQData data{
+        {
+          MQData::MessageInfo::msg_type::INFO,
+          MQData::MessageInfo::action_type::NONE,
+          0
+        },
+        "Started processing image."
+      };
+      char buf[MY_BUFFER_SIZE];
+      data.to_buffer(buf);
+      client.send(buf);
+      client.receive(buf, MY_BUFFER_SIZE);
 
       try {
 
@@ -82,6 +132,20 @@ ApiListener::ApiListener() {
 
         crow::response res(json);
         res.set_header("Content-Type", "application/json");
+
+        MQData data{
+          {
+            MQData::MessageInfo::msg_type::INFO,
+            MQData::MessageInfo::action_type::NONE,
+            0
+          },
+          "Finished processing image."
+        };
+        char buf[MY_BUFFER_SIZE];
+        data.to_buffer(buf);
+        client.send(buf);
+        client.receive(buf, MY_BUFFER_SIZE);
+
         return res;
 
       } catch(const std::exception& e) {

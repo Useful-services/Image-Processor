@@ -6,6 +6,8 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
+#include <ZMQClient.hpp>
+#include <Types.hpp>
 
 class ApiListener {
 public:
@@ -15,5 +17,7 @@ public:
   void run_multithreaded(int port);
 
 private:
+
   crow::App<crow::CORSHandler> app;
+  ZMQClient client;
 };

@@ -4,6 +4,8 @@
   "files.associations": {
     "*.h": "cpp",
     "*.cc": "cpp",
-    "memory": "cpp"
-  }
+    "memory": "cpp",
+    "iostream": "cpp"
+  },
+  "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
 }

@@ -33,13 +33,11 @@ add_library(stb_image INTERFACE)
 target_include_directories(stb_image INTERFACE stb_image/)
 
 add_library(ImageHandler STATIC src/Image.cpp src/stb_image_impl.cpp src/ImageEncoder.cpp)
+add_library(WebHandler src/ApiListener.cpp)
 
 target_include_directories(ImageHandler PUBLIC include/ stb_image/)
+target_include_directories(WebHandler PUBLIC include/)
+target_link_libraries(WebHandler PUBLIC ImageHandler Crow::Crow)
 
-# Основной исполняемый файл для обработки изображений
-add_executable(MAIN main.cpp)
-target_link_libraries(MAIN PRIVATE ImageHandler stb_image)
-
-# Веб-сервер с использованием Crow
 add_executable(WEB_SERVER web_server.cpp)
-target_link_libraries(WEB_SERVER PRIVATE ImageHandler stb_image Crow::Crow)
+target_link_libraries(WEB_SERVER PRIVATE stb_image WebHandler)

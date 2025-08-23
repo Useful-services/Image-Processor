@@ -27,7 +27,7 @@ set(ZMQ_BUILD_TESTS OFF)
 CPMAddPackage(
     NAME ZeroMQ
     GITHUB_REPOSITORY Useful-services/SimpleLogger
-    GIT_TAG eb62881473037c4eb97f939839a9f1d052187a71
+    GIT_TAG e9ede29e9adfe598acc4c0ce7f3b034d1a4cac67
 )
 
 # Включаем Crow с настройками для standalone asio

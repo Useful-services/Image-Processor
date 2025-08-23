@@ -2,7 +2,6 @@
 
 #include <ZMQServer.hpp>
 #include <Logger.hpp>
-#include <Types.hpp>
 #include <map>
 #include <functional>
 

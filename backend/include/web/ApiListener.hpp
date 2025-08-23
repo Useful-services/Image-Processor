@@ -7,7 +7,6 @@
 #include <string>
 #include <algorithm>
 #include <ZMQClient.hpp>
-#include <Types.hpp>
 
 class ApiListener {
 public:

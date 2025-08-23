@@ -25,8 +25,7 @@ ApiListener::ApiListener(): client(ZMQClient("tcp://localhost:" + std::to_string
         "Main page accessed."
       };
       char buf[MY_BUFFER_SIZE];
-      data.to_buffer(buf);
-      client.send(buf);
+      client.send_data(data);
       client.receive(buf, MY_BUFFER_SIZE);
       return "Hello world!";
     });
@@ -43,9 +42,7 @@ ApiListener::ApiListener(): client(ZMQClient("tcp://localhost:" + std::to_string
         "Started processing text."
       };
       char buf[MY_BUFFER_SIZE];
-      data.to_buffer(buf);
-      MQData other_data = MQData::from_buffer(buf);
-      client.send(buf);
+      client.send_data(data);
       client.receive(buf, MY_BUFFER_SIZE);
       try {
         auto body = crow::json::load(req.body);
@@ -75,8 +72,7 @@ ApiListener::ApiListener(): client(ZMQClient("tcp://localhost:" + std::to_string
           "Finished processing text."
         };
         char buf[MY_BUFFER_SIZE];
-        data.to_buffer(buf);
-        client.send(buf);
+        client.send_data(data);
         client.receive(buf, MY_BUFFER_SIZE);
 
         return res;
@@ -103,8 +99,7 @@ ApiListener::ApiListener(): client(ZMQClient("tcp://localhost:" + std::to_string
         "Started processing image."
       };
       char buf[MY_BUFFER_SIZE];
-      data.to_buffer(buf);
-      client.send(buf);
+      client.send_data(data);
       client.receive(buf, MY_BUFFER_SIZE);
 
       try {
@@ -142,8 +137,7 @@ ApiListener::ApiListener(): client(ZMQClient("tcp://localhost:" + std::to_string
           "Finished processing image."
         };
         char buf[MY_BUFFER_SIZE];
-        data.to_buffer(buf);
-        client.send(buf);
+        client.send_data(data);
         client.receive(buf, MY_BUFFER_SIZE);
 
         return res;

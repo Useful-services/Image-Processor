@@ -9,6 +9,7 @@ void BackendRouter::start() {
     for(;;) {
       char buffer[MY_BUFFER_SIZE] = {};
       server.receive(buffer, MY_BUFFER_SIZE);
+      server.send_string("");
       data = MQData::from_buffer(buffer);
       switch (data.msg_info.action_type) {
         case MQData::MessageInfo::action_type::IMG: {
@@ -25,7 +26,6 @@ void BackendRouter::start() {
         }
       }
 
-      server.send("");
     }
   });
 }

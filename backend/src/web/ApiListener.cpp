@@ -45,6 +45,7 @@ ApiListener::ApiListener(): client(ZMQClient("tcp://localhost:" + std::to_string
       client.send_data(data);
       client.receive(buf, MY_BUFFER_SIZE);
       try {
+        auto start_time = std::chrono::high_resolution_clock::now();
         auto body = crow::json::load(req.body);
         if (!body || !body.has("text")) {
           crow::response res(400);
@@ -62,12 +63,13 @@ ApiListener::ApiListener(): client(ZMQClient("tcp://localhost:" + std::to_string
 
         crow::response res(json);
         res.set_header("Content-Type", "application/json");
-
+        auto end_time = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
         MQData data{
           {
             MQData::MessageInfo::msg_type::INFO,
-            MQData::MessageInfo::action_type::NONE,
-            0
+            MQData::MessageInfo::action_type::TEXT,
+            duration
           },
           "Finished processing text."
         };
@@ -103,7 +105,7 @@ ApiListener::ApiListener(): client(ZMQClient("tcp://localhost:" + std::to_string
       client.receive(buf, MY_BUFFER_SIZE);
 
       try {
-
+        auto start_time = std::chrono::high_resolution_clock::now();
         auto body = crow::json::load(req.body);
         if (!body || !body.has("image")) {
           CROW_LOG_ERROR << "Image processing started without image";
@@ -127,12 +129,13 @@ ApiListener::ApiListener(): client(ZMQClient("tcp://localhost:" + std::to_string
 
         crow::response res(json);
         res.set_header("Content-Type", "application/json");
-
+        auto end_time = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
         MQData data{
           {
             MQData::MessageInfo::msg_type::INFO,
-            MQData::MessageInfo::action_type::NONE,
-            0
+            MQData::MessageInfo::action_type::IMG,
+            duration
           },
           "Finished processing image."
         };

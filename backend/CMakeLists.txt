@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_compile_definitions(MQ_PORT=5556 MY_BUFFER_SIZE=1024)
 
+include(FetchContent)
+
 # Windows-specific settings
 if(WIN32)
     add_definitions(-D_WIN32_WINNT=0x0601)
@@ -24,11 +26,19 @@ CPMAddPackage(
 
 set(ZMQ_BUILD_TESTS OFF)
 
-CPMAddPackage(
-    NAME ZeroMQ
-    GITHUB_REPOSITORY Useful-services/SimpleLogger
+FetchContent_Declare(
+    ZeroMQ
+    GIT_REPOSITORY https://github.com/Useful-services/SimpleLogger
     GIT_TAG e9ede29e9adfe598acc4c0ce7f3b034d1a4cac67
 )
+
+FetchContent_Declare(
+    DatabaseWrappers
+    GIT_REPOSITORY https://github.com/Useful-services/DatabaseWrappers
+    GIT_TAG 56accef202f6d02cb1c30b7683611e9db6245d87
+)
+
+FetchContent_MakeAvailable(ZeroMQ DatabaseWrappers)
 
 # Включаем Crow с настройками для standalone asio
 set(CROW_USE_BOOST OFF CACHE BOOL "" FORCE)
@@ -55,7 +65,7 @@ target_link_libraries(WebHandler PUBLIC ImageHandler Crow::Crow ZMQ)
 
 add_library(RouterLib STATIC ${ROUTER_SRC})
 target_include_directories(RouterLib PUBLIC include/backend_router include/custom_types)
-target_link_libraries(RouterLib PUBLIC ZMQ LOGGER)
+target_link_libraries(RouterLib PUBLIC ZMQ LOGGER MY_PSQL)
 
 add_executable(WEB_SERVER web_server.cpp)
 target_link_libraries(WEB_SERVER PRIVATE stb_image WebHandler)
